@@ -47,16 +47,6 @@
             color: #c9d1d9;
         }
         
-        .log-move {
-            border-color: #3fb950;
-            color: #aff5b4;
-        }
-        
-        .log-temporal {
-            border-color: #d2a8ff;
-            color: #e2c5ff;
-        }
-        
         .log-error {
             border-color: #f85149;
             color: #ffa198;
@@ -117,92 +107,181 @@
             <p class="text-xs text-gray-400">Founder: Kaileb James Hitch | Full QWERTY Bridge Active</p>
         </div>
         <div class="flex gap-2">
-            <button onclick="clearTerminal()" class="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">Clear</button>
-            <button onclick="executeCode()" class="px-3 py-1 text-xs text-white btn-execute rounded">Execute</button>
+            <button onclick="clearConsole()" class="px-4 py-1 text-xs border border-gray-600 rounded hover:bg-gray-800">Clear Terminal</button>
+            <button onclick="compileAndRun()" class="btn-execute px-6 py-1 text-sm font-bold text-white rounded">EXECUTE SCRIPT</button>
         </div>
     </header>
 
-    <!-- Main Editor Area -->
-    <div class="editor-container flex gap-4">
-        <!-- Left: Code Editor -->
-        <div class="flex-1 flex flex-col">
-            <label class="text-xs text-gray-400 mb-2">HM2D Source Code</label>
-            <textarea id="codeEditor" placeholder="Enter HM2D code here..." class="flex-1 p-3 rounded"></textarea>
+    <div class="grid grid-cols-12 gap-4 editor-container">
+        <!-- Editor -->
+        <div class="col-span-7 flex flex-col">
+            <textarea id="editor" class="w-full h-full p-4 rounded-lg" placeholder="// Enter HM2D Logic here..."></textarea>
         </div>
 
-        <!-- Right: Output & Terminal -->
-        <div class="flex-1 flex flex-col">
-            <label class="text-xs text-gray-400 mb-2">Execution Terminal</label>
-            <div id="terminal" class="terminal rounded p-3">
-                <div class="log-entry log-system">▸ HM2D Compiler Ready (v1.4)</div>
+        <!-- Logic & Hardware Bridge -->
+        <div class="col-span-5 flex flex-col gap-4">
+            <div class="bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
+                <h2 class="text-xs font-bold text-gray-400 uppercase mb-3">Hardware Bridge (Global Input)</h2>
+                <div class="kb-grid grid grid-cols-10 gap-1 mb-1">
+                    <button onmousedown="triggerKey('Q')">Q</button><button onmousedown="triggerKey('W')">W</button><button onmousedown="triggerKey('E')">E</button><button onmousedown="triggerKey('R')">R</button><button onmousedown="triggerKey('T')">T</button><button onmousedown="triggerKey('Y')">Y</button><button onmousedown="triggerKey('U')">U</button><button onmousedown="triggerKey('I')">I</button><button onmousedown="triggerKey('O')">O</button><button onmousedown="triggerKey('P')">P</button>
+                </div>
+                <div class="kb-grid grid grid-cols-10 gap-1 mb-1 pl-2">
+                    <button onmousedown="triggerKey('A')">A</button><button onmousedown="triggerKey('S')">S</button><button onmousedown="triggerKey('D')">D</button><button onmousedown="triggerKey('F')">F</button><button onmousedown="triggerKey('G')">G</button><button onmousedown="triggerKey('H')">H</button><button onmousedown="triggerKey('J')">J</button><button onmousedown="triggerKey('K')">K</button><button onmousedown="triggerKey('L')">L</button><button onmousedown="triggerKey('Enter')" class="bg-gray-700">ENT</button>
+                </div>
+                <div class="kb-grid grid grid-cols-10 gap-1 mb-1">
+                    <button onmousedown="triggerKey('Shift')" class="bg-gray-700">SHF</button><button onmousedown="triggerKey('Z')">Z</button><button onmousedown="triggerKey('X')">X</button><button onmousedown="triggerKey('C')">C</button><button onmousedown="triggerKey('V')">V</button><button onmousedown="triggerKey('B')">B</button><button onmousedown="triggerKey('N')">N</button><button onmousedown="triggerKey('M')">M</button><button onmousedown="triggerKey('Escape')" class="bg-gray-700">ESC</button>
+                </div>
+                <div class="kb-grid grid grid-cols-1 gap-1">
+                    <button onmousedown="triggerKey('Space')" class="w-full">SPACE BAR</button>
+                </div>
+                <p class="text-[9px] text-gray-500 mt-3 italic text-center">Physical keyboard keys are automatically synced to #Key# logic.</p>
+            </div>
+            <div class="flex-1 bg-[#161b22] p-4 rounded-lg border border-[#30363d] overflow-y-auto text-[10px]">
+                <h2 class="text-xs font-bold text-gray-400 uppercase mb-2">Active State Identities</h2>
+                <div id="identity-list" class="space-y-1">
+                    <p class="text-gray-600 italic">No active logic gates.</p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Terminal -->
+    <div id="terminal" class="fixed bottom-0 left-0 w-full terminal p-4 font-mono text-sm">
+        <div class="log-entry log-system">Primi-HM2D Logic Engine Initialized. Full-Keyboard Bridge sync active.</div>
+    </div>
+
     <script>
-        function addLog(message, type = 'system') {
-            const terminal = document.getElementById('terminal');
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
-            entry.textContent = message;
-            terminal.appendChild(entry);
+        const terminal = document.getElementById('terminal');
+        const editor = document.getElementById('editor');
+        const idList = document.getElementById('identity-list');
+        
+        let executionHistory = [];
+        let activeIdentities = {};
+        let logicCapsules = {};
+
+        // Global Keyboard Bridge
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement === editor) return;
+            if (e.code === "Space") e.preventDefault();
+            
+            let keyName = e.key;
+            if (keyName === " ") keyName = "Space";
+            if (keyName === "Escape") keyName = "Escape";
+            if (keyName === "Shift") keyName = "Shift";
+            
+            triggerKey(keyName);
+            if (keyName.length === 1) triggerKey(keyName.toUpperCase());
+        });
+
+        function log(message, type = 'system') {
+            const div = document.createElement('div');
+            div.className = `log-entry log-${type}`;
+            const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            div.innerText = `[${time}] ${message}`;
+            terminal.appendChild(div);
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        function clearTerminal() {
-            const terminal = document.getElementById('terminal');
-            terminal.innerHTML = '<div class="log-entry log-system">▸ Terminal cleared</div>';
+        function clearConsole() {
+            terminal.innerHTML = '';
+            log('Terminal purged.', 'system');
         }
 
-        function executeCode() {
-            const code = document.getElementById('codeEditor').value.trim();
+        async function compileAndRun() {
+            const code = editor.value;
+            executionHistory = [];
+            logicCapsules = {};
+            activeIdentities = {};
+            updateIdentityUI();
             
-            if (!code) {
-                addLog('✗ Error: No code to execute', 'error');
+            log('Parsing Primi-HM2D script pointers...', 'system');
+            const lines = code.split('\n');
+            await processSequence(lines);
+        }
+
+        async function processSequence(lines) {
+            for (let line of lines) {
+                await executeLine(line.trim());
+            }
+        }
+
+        async function executeLine(line) {
+            if (!line || line.startsWith('//')) return;
+            
+            let matched = false;
+
+            // 1. Hardware Bridge Capsule - on #KEY# key === , ACTION ,
+            const capsuleMatch = line.match(/^on #(\w+)# key === , (.*) ,$/);
+            if (capsuleMatch) {
+                const key = capsuleMatch[1];
+                const content = capsuleMatch[2];
+                logicCapsules[key] = content;
+                log(`Bridged capsule to #${key}#`, 'system');
+                matched = true;
+            }
+
+            // 2. SAY Protocol - say (: MESSAGE :)
+            if (!matched) {
+                const sayMatch = line.match(/^say\s+\(:\s*(.*?)\s*:\)$/);
+                if (sayMatch) {
+                    log(sayMatch[1], 'say');
+                    executionHistory.push(line);
+                    matched = true;
+                }
+            }
+
+            // 3. Identity Gate - * NAME * : ACTION
+            if (!matched) {
+                const idGateMatch = line.match(/^\*\s*(.*?)\s*\*\s*:\s*(.*)$/);
+                if (idGateMatch) {
+                    const idName = idGateMatch[1];
+                    const action = idGateMatch[2];
+                    log(`Identity [${idName}] gating...`, 'system');
+                    activeIdentities[idName] = action;
+                    updateIdentityUI();
+                    await executeLine(action);
+                    matched = true;
+                }
+            }
+
+            // Error Fallback
+            if (!matched && line.length > 0) {
+                log(`Syntax Error: Unknown Protocol [${line}]`, 'error');
+            }
+        }
+
+        function triggerKey(key) {
+            if (logicCapsules[key]) {
+                const actions = logicCapsules[key].split(' , ');
+                actions.forEach(act => executeLine(act.trim()));
+            }
+        }
+
+        function updateIdentityUI() {
+            idList.innerHTML = '';
+            const keys = Object.keys(activeIdentities);
+            if (keys.length === 0) {
+                idList.innerHTML = '<p class="text-gray-600 italic">No active logic gates.</p>';
                 return;
             }
-
-            addLog('→ Compiling HM2D code...', 'system');
-
-            try {
-                const lines = code.split('\n');
-                let executeCount = 0;
-
-                for (const line of lines) {
-                    const trimmed = line.trim();
-                    if (!trimmed || trimmed.startsWith('//')) continue;
-
-                    if (trimmed.toLowerCase().startsWith('say ')) {
-                        const message = trimmed.substring(4);
-                        addLog(`◆ ${message}`, 'say');
-                        executeCount++;
-                    } else if (trimmed.toLowerCase().startsWith('move ')) {
-                        const direction = trimmed.substring(5);
-                        addLog(`→ Moving: ${direction}`, 'move');
-                        executeCount++;
-                    } else if (trimmed.toLowerCase().startsWith('temporal ')) {
-                        const action = trimmed.substring(8);
-                        addLog(`⟳ Temporal: ${action}`, 'temporal');
-                        executeCount++;
-                    } else {
-                        addLog(`⚠ Unknown command: ${trimmed}`, 'error');
-                    }
-                }
-
-                addLog(`✓ Execution complete (${executeCount} operations)`, 'system');
-            } catch (error) {
-                addLog(`✗ Runtime Error: ${error.message}`, 'error');
-            }
+            keys.forEach(k => {
+                const div = document.createElement('div');
+                div.className = 'text-green-500 flex justify-between border-b border-gray-800 pb-1';
+                div.innerHTML = `<span>* ${k} *</span> <span class="text-gray-500 text-[9px]">${activeIdentities[k].substring(0, 15)}...</span>`;
+                idList.appendChild(div);
+            });
         }
 
-        // Optional: Execute on Ctrl+Enter
-        document.getElementById('codeEditor').addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                executeCode();
-            }
-        });
-
-        addLog('▸ HM2D Compiler v1.4 Ready | Press Ctrl+Enter to execute', 'system');
+        window.onload = () => {
+            const alphabet = "QWERTYUIOPASDFGHJKLZXCVBNM".split("");
+            let starterCode = "say (: Hello World! :)\n";
+            alphabet.forEach(key => {
+                starterCode += `on #${key}# key === , say (: [${key}] Pressed :) ,\n`;
+            });
+            starterCode += "on #Space# key === , say (: [Space] Pressed :) ,\n";
+            starterCode += "on #Enter# key === , say (: [Enter] Pressed :) ,";
+            editor.value = starterCode;
+        };
     </script>
 </body>
 </html>
