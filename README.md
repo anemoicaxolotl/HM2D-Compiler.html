@@ -6,7 +6,7 @@
 
 ## 📋 About HM2D
 
-**HM2D** (Hierarchical Modular 2-Dimensional Logic) is a custom programming language designed to bridge logical reasoning with spatial and temporal operations. This repository contains **Primi-HM2D**, the most simplified, foundational version of the language—perfect for learning the core concepts before advancing to more complex implementations.
+**HM2D** (Hierarchical Modular 2-Dimensional Logic) is a custom programming language designed to bridge logical reasoning with spatial operations and keyboard integration. This repository contains **Primi-HM2D**, the most simplified, foundational version of the language—perfect for learning the core concepts before advancing to more complex implementations.
 
 ### Founded By
 **Kaileb James Hitch** - Creator and Lead Designer of the HM2D Language Specification
@@ -18,43 +18,47 @@
 Primi-HM2D represents the **primitive** (simple, foundational) implementation of HM2D logic. It focuses on:
 
 - **Simplicity**: Easy-to-learn syntax with minimal complexity
-- **Core Operations**: Essential commands for logic, movement, and temporal reasoning
+- **Core Operations**: Essential commands for output and keyboard integration
 - **Foundation**: Serves as the base for more advanced HM2D implementations
-- **Accessibility**: Designed to be approachable for beginners and educators
+- **Full Keyboard Bridge**: Direct integration with hardware input (QWERTY keyboard)
 
 ---
 
-## 🏗️ Core Commands
+## 🏗️ Core Protocols
 
-### 1. **SAY** - Output/Communication
+### 1. **SAY Protocol** - Output/Communication
 ```hm2d
-say Hello, World!
-say This is a message to the console
+say (: Hello, World! :)
+say (: This is a message to the terminal :)
 ```
-**What it does:** Outputs text to the terminal. Used for logging, debugging, and communication within programs.
+**What it does:** Outputs text to the terminal. Used for logging, debugging, and communication within programs. Text must be wrapped in `(: :)` parentheses.
+
+**Syntax:** `say (: YOUR MESSAGE HERE :)`
 
 ---
 
-### 2. **MOVE** - Spatial Navigation
+### 2. **Hardware Bridge** - Keyboard Input Integration
 ```hm2d
-move north
-move east
-move up
-move southwest
+on #Q# key === , say (: Q Pressed :) ,
+on #Space# key === , say (: Space was pressed :) ,
+on #Enter# key === , say (: Enter key triggered :) ,
 ```
-**What it does:** Performs movement operations in a 2D or directional space. Used for navigating logical grids, positions, or states.
+**What it does:** Maps keyboard keys to HM2D actions. When a physical key is pressed, the associated logic executes automatically. The Hardware Bridge is **always active** - just press any key!
 
-**Supported directions:** north, south, east, west, up, down, left, right, and diagonal combinations
+**Syntax:** `on #KEY# key === , ACTION ,`
+
+**Supported Keys:** All QWERTY letters (A-Z), Space, Enter, Shift, Escape
 
 ---
 
-### 3. **TEMPORAL** - Time-Based Logic
+### 3. **Identity Gates** - Logic Organization
 ```hm2d
-temporal delay 1000ms
-temporal loop 5
-temporal sync
+* LoginCheck * : say (: User authenticated :)
+* StartSequence * : say (: Initialization started :)
 ```
-**What it does:** Handles time-dependent operations, loops, delays, and synchronization. Essential for controlling execution flow and managing temporal sequences.
+**What it does:** Creates named logic gates that organize code and improve readability. Identity gates can be invoked manually or through the Hardware Bridge.
+
+**Syntax:** `* GATE_NAME * : ACTION`
 
 ---
 
@@ -63,22 +67,18 @@ temporal sync
 This project includes a **web-based HM2D compiler** with the following features:
 
 ### Features:
-- **Live Code Editor**: Write HM2D code in a dark-themed editor with syntax highlighting
-- **Execution Terminal**: Real-time output and execution logs with color-coded messages
-- **Keyboard Shortcuts**: Press `Ctrl+Enter` to quickly execute code
-- **Command Logging**: Different colors for different command types:
-  - 🔵 **SAY** commands (blue) - communication outputs
-  - 🟢 **MOVE** commands (green) - navigation operations
-  - 🟣 **TEMPORAL** commands (purple) - time-based logic
-  - 🔴 **ERRORS** (red) - compilation and runtime errors
-  - ⚫ **SYSTEM** messages (gray) - compiler status updates
+- **Live Code Editor**: Write HM2D code in a dark-themed editor
+- **Execution Terminal**: Real-time output with timestamped messages
+- **Hardware Bridge Keyboard**: Visual QWERTY keyboard for testing
+- **Active State Monitor**: See all active logic gates in real-time
+- **Keyboard Shortcuts**: Full physical keyboard integration
 
 ### Interface Components:
-1. **Header**: Compiler version, creator information, and control buttons
+1. **Header**: Compiler version, creator info, and control buttons
 2. **Code Editor** (Left): Main textarea for writing HM2D source code
-3. **Execution Terminal** (Right): Real-time output and logging
-4. **Execute Button**: Compile and run the current code
-5. **Clear Button**: Reset the terminal output
+3. **Hardware Bridge** (Top Right): Visual keyboard buttons
+4. **Active State Identities** (Bottom Right): Monitor running logic gates
+5. **Execution Terminal** (Bottom): Real-time output and logs
 
 ---
 
@@ -87,52 +87,53 @@ This project includes a **web-based HM2D compiler** with the following features:
 ### 1. Open the Compiler
 - Clone or download this repository
 - Open `index.html` in a web browser
-- You'll see the HM2D compiler interface
+- You'll see the HM2D compiler interface with starter code
 
 ### 2. Write Code
 In the left editor panel, write HM2D code:
 ```hm2d
-say Starting HM2D program
-move north
-say Moved north successfully
-temporal loop 3
-move east
+say (: Starting HM2D program :)
+* MyGate * : say (: Gate activated :)
+on #A# key === , say (: A key pressed :) ,
 ```
 
 ### 3. Execute
-- Click the **Execute** button, or
-- Press **Ctrl+Enter** on your keyboard
+- Click the **EXECUTE SCRIPT** button, or
+- Press any keyboard key to trigger Hardware Bridge actions
 
 ### 4. View Output
-Check the terminal on the right for execution results and any errors
+Check the terminal at the bottom for execution results, timestamps, and any errors
 
 ---
 
 ## 📝 Example Programs
 
-### Example 1: Simple Navigation
+### Example 1: Hello World
 ```hm2d
-say Initializing navigation system
-move north
-move east
-move south
-say Navigation complete
+say (: Hello, World! :)
+say (: Welcome to HM2D :)
 ```
 
-### Example 2: Temporal Loop
+### Example 2: Keyboard Integration
 ```hm2d
-say Starting temporal operation
-temporal loop 5
-say This repeats 5 times
-move forward
+on #Q# key === , say (: Q pressed - Starting sequence :) ,
+on #W# key === , say (: W pressed - Processing data :) ,
+on #E# key === , say (: E pressed - Complete :) ,
 ```
 
-### Example 3: Error Handling
+### Example 3: Logic Gates
 ```hm2d
-say Valid command
-unknown_command invalid
-// Comments are ignored and don't execute
-say Program continues despite unknown command
+* Initialize * : say (: System initialized :)
+* Process * : say (: Processing input :)
+* Terminate * : say (: System shutdown :)
+on #Space# key === , * Initialize * : say (: Space triggered init :) ,
+```
+
+### Example 4: Comments
+```hm2d
+// This is a comment and will be ignored
+say (: This will execute :)
+// Only lines starting with // are ignored
 ```
 
 ---
@@ -140,35 +141,44 @@ say Program continues despite unknown command
 ## 🔍 Technical Details
 
 ### Language Features
-- **Whitespace-Insensitive**: Extra spaces are ignored
+- **Whitespace-Flexible**: Extra spaces are generally ignored
 - **Comment Support**: Lines starting with `//` are ignored
-- **Case-Insensitive**: Commands work in any case (SAY, say, Say)
-- **Single-Line Execution**: Each command is processed sequentially
+- **Case-Sensitive**: Commands must be lowercase
+- **Sequential Execution**: Commands execute in order from top to bottom
+- **Hardware Aware**: Keyboard events trigger bridge actions immediately
 
 ### Compilation Process
 1. **Parsing**: Code is split into individual commands
-2. **Validation**: Each command is checked for validity
-3. **Execution**: Valid commands are executed and logged
-4. **Reporting**: Results and errors are displayed in the terminal
+2. **Capsule Registration**: Hardware bridge capsules are registered first
+3. **Validation**: Each command is checked for syntax validity
+4. **Execution**: Valid commands are executed and logged
+5. **Hardware Sync**: Keyboard input automatically triggers mapped actions
+
+### Error Handling
+- **Unknown Protocol**: Syntax errors are logged to terminal in red
+- **Graceful Degradation**: Invalid lines are skipped; valid code continues
+- **Terminal Logging**: All errors include timestamps for debugging
 
 ---
 
 ## 🎓 Learning Path
 
 **Beginner:**
-- Start with `say` commands to understand output
-- Practice basic `move` operations
-- Learn comment syntax
+- Start with `say (: :)` commands to understand output
+- Learn to use the Hardware Bridge with one key
+- Practice syntax with comments
 
 **Intermediate:**
+- Create multiple Hardware Bridge mappings
+- Use Identity Gates for organization
 - Combine commands in sequences
-- Explore `temporal` operations
-- Handle error messages
+- Test with the visual keyboard
 
 **Advanced:**
-- Create complex programs with multiple operations
-- Optimize command sequences
-- Prepare to transition to full HM2D
+- Create complex multi-key sequences
+- Organize code with multiple Identity Gates
+- Build interactive keyboard-driven programs
+- Debug using terminal timestamps
 
 ---
 
@@ -177,7 +187,8 @@ say Program continues despite unknown command
 - **Current Version**: 1.4 (Primi-HM2D Logic)
 - **Release Date**: 2026
 - **Edition**: Primitive/Foundational
-- **Status**: Stable and ready for educational use
+- **Status**: Stable and ready for use
+- **Language Composition**: 100% HTML/CSS/JavaScript
 
 ---
 
@@ -186,33 +197,60 @@ say Program continues despite unknown command
 Beyond Primi-HM2D, the HM2D language roadmap includes:
 - **Standard-HM2D**: Variables, functions, and data structures
 - **Advanced-HM2D**: Object-oriented features and modules
-- **Full-HM2D**: Complete language specification with compilation to machine code
+- **Full-HM2D**: Complete language specification with external compilation
 
 ---
 
 ## 📄 License
 
-This project is created by Kaileb James Hitch. Usage terms available upon request.
+This project is created by Kaileb James Hitch. Usage and distribution terms available upon request.
 
 ---
 
 ## 💡 Tips & Tricks
 
-1. **Use comments liberally**: Add `// comments` to explain your code
-2. **Test incrementally**: Run small code segments before creating large programs
-3. **Check the terminal**: All output and errors are logged with color-coding
-4. **Keyboard shortcut**: Ctrl+Enter is faster than clicking Execute
-5. **Clear often**: Use the Clear button to keep your terminal readable
+1. **Test incrementally**: Build one Hardware Bridge mapping at a time
+2. **Use comments liberally**: Add `// comments` to explain your logic
+3. **Check the terminal**: All output is timestamped for debugging
+4. **Visual keyboard**: Use the buttons to test Hardware Bridge actions
+5. **Active states**: Monitor the right panel to see your Identity Gates in action
+6. **Keyboard shortcuts**: Press physical keys to trigger Hardware Bridge actions
+7. **Clear often**: Use the Clear Terminal button to keep output readable
 
 ---
 
 ## 🤝 Contributing & Support
 
 For questions, suggestions, or improvements regarding HM2D:
-- Check the official HM2D documentation
+- Check the HM2D documentation in this repository
 - Contact the creator: Kaileb James Hitch
-- Submit feedback through this repository
+- Test and provide feedback through GitHub issues
+
+---
+
+## 🎮 Quick Start Templates
+
+**Template 1: Simple Message**
+```hm2d
+say (: Welcome to my HM2D program! :)
+```
+
+**Template 2: Keyboard Controller**
+```hm2d
+on #A# key === , say (: Action A triggered :) ,
+on #B# key === , say (: Action B triggered :) ,
+on #C# key === , say (: Action C triggered :) ,
+```
+
+**Template 3: Organized Gates**
+```hm2d
+* Welcome * : say (: Welcome to HM2D :)
+* Ready * : say (: System ready for input :)
+on #Space# key === , * Welcome * : say (: Starting... :) ,
+```
 
 ---
 
 **Happy coding with Primi-HM2D! 🚀**
+
+**Built with ❤️ by Kaileb James Hitch**
