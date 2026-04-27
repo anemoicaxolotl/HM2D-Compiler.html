@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM2D Logic Compiler (2026 Edition)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            background-color: #0a0a0c;
+            color: #d1d1d1;
+            font-family: 'Fira Code', monospace;
+            overflow: hidden;
+        }
+        
+        .editor-container {
+            height: calc(100vh - 80px);
+        }
+        
+        textarea {
+            background: #0f0f12;
+            color: #a5d6ff;
+            resize: none;
+            outline: none;
+            border: 1px solid #2d2d33;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .terminal {
+            background: #050505;
+            border-top: 2px solid #333;
+            height: 250px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            border-left: 3px solid #4a4a4a;
+            padding-left: 10px;
+            margin-bottom: 4px;
+        }
+        
+        .log-say {
+            border-color: #58a6ff;
+            color: #c9d1d9;
+        }
+        
+        .log-move {
+            border-color: #3fb950;
+            color: #aff5b4;
+        }
+        
+        .log-temporal {
+            border-color: #d2a8ff;
+            color: #e2c5ff;
+        }
+        
+        .log-error {
+            border-color: #f85149;
+            color: #ffa198;
+        }
+        
+        .log-system {
+            border-color: #8b949e;
+            color: #8b949e;
+            font-style: italic;
+        }
+        
+        .btn-execute {
+            background: #238636;
+            transition: all 0.2s;
+        }
+        
+        .btn-execute:hover {
+            background: #2ea043;
+        }
+        
+        .kb-grid button {
+            background: #1c1c21;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 9px;
+            padding: 4px 2px;
+            transition: all 0.1s;
+        }
+        
+        .kb-grid button:hover {
+            background: #30363d;
+        }
+        
+        .kb-grid button:active {
+            background: #58a6ff;
+            color: white;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a0c;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-4">
+        <div>
+            <h1 class="text-xl font-bold text-white">HM2D COMPILER <span class="text-xs font-normal text-gray-500">v1.4 (Primi-HM2D Logic)</span></h1>
+            <p class="text-xs text-gray-400">Founder: Kaileb James Hitch | Full QWERTY Bridge Active</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="clearTerminal()" class="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">Clear</button>
+            <button onclick="executeCode()" class="px-3 py-1 text-xs text-white btn-execute rounded">Execute</button>
+        </div>
+    </header>
+
+    <!-- Main Editor Area -->
+    <div class="editor-container flex gap-4">
+        <!-- Left: Code Editor -->
+        <div class="flex-1 flex flex-col">
+            <label class="text-xs text-gray-400 mb-2">HM2D Source Code</label>
+            <textarea id="codeEditor" placeholder="Enter HM2D code here..." class="flex-1 p-3 rounded"></textarea>
+        </div>
+
+        <!-- Right: Output & Terminal -->
+        <div class="flex-1 flex flex-col">
+            <label class="text-xs text-gray-400 mb-2">Execution Terminal</label>
+            <div id="terminal" class="terminal rounded p-3">
+                <div class="log-entry log-system">▸ HM2D Compiler Ready (v1.4)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addLog(message, type = 'system') {
+            const terminal = document.getElementById('terminal');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearTerminal() {
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML = '<div class="log-entry log-system">▸ Terminal cleared</div>';
+        }
+
+        function executeCode() {
+            const code = document.getElementById('codeEditor').value.trim();
+            
+            if (!code) {
+                addLog('✗ Error: No code to execute', 'error');
+                return;
+            }
+
+            addLog('→ Compiling HM2D code...', 'system');
+
+            try {
+                const lines = code.split('\n');
+                let executeCount = 0;
+
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed.startsWith('//')) continue;
+
+                    if (trimmed.toLowerCase().startsWith('say ')) {
+                        const message = trimmed.substring(4);
+                        addLog(`◆ ${message}`, 'say');
+                        executeCount++;
+                    } else if (trimmed.toLowerCase().startsWith('move ')) {
+                        const direction = trimmed.substring(5);
+                        addLog(`→ Moving: ${direction}`, 'move');
+                        executeCount++;
+                    } else if (trimmed.toLowerCase().startsWith('temporal ')) {
+                        const action = trimmed.substring(8);
+                        addLog(`⟳ Temporal: ${action}`, 'temporal');
+                        executeCount++;
+                    } else {
+                        addLog(`⚠ Unknown command: ${trimmed}`, 'error');
+                    }
+                }
+
+                addLog(`✓ Execution complete (${executeCount} operations)`, 'system');
+            } catch (error) {
+                addLog(`✗ Runtime Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Optional: Execute on Ctrl+Enter
+        document.getElementById('codeEditor').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                executeCode();
+            }
+        });
+
+        addLog('▸ HM2D Compiler v1.4 Ready | Press Ctrl+Enter to execute', 'system');
+    </script>
+</body>
+</html>
